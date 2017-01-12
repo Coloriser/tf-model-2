@@ -78,7 +78,7 @@ def load_model(path):
 
 
 
-def reconstruct(l_arr,a_arr,b_arr):
+def reconstruct(l_arr,a_arr,b_arr, count):
 
     print(l_arr.shape)
     print(a_arr.shape)
@@ -86,9 +86,14 @@ def reconstruct(l_arr,a_arr,b_arr):
 
     img = np.vstack(([l_arr.T], [a_arr.T], [b_arr.T])).T
     rgb_image = color.lab2rgb(img)
-    io.imsave("reconstructed.jpg", rgb_image)
+    io.imsave("predicted_images/"+str(count)+".jpg", rgb_image)
 
-
+def scale_image(chroma):
+    chroma = np.array(chroma)
+    chroma = chroma*256
+    chroma = chroma - 128
+    chroma = np.reshape(chroma, (203,270))
+    return chroma
 
 def main():
     model_a_channel = load_model("model/a_channel.model")
@@ -110,15 +115,9 @@ def main():
     print("modifying the shape of input and output")
     train_x = np.array(brisk_features).reshape([1, 344, 64, 1])
 
-    prediction = model_a_channel.predict(train_x)
+    predictions = model_a_channel.predict(train_x)
 
-    a_channel_chroma = prediction[0]
-    a_channel_chroma = np.array(a_channel_chroma)
-    a_channel_chroma = a_channel_chroma*256
-    a_channel_chroma = a_channel_chroma - 128
-    a_channel_chroma = np.reshape(a_channel_chroma, (203,270))
-
-    reconstruct(luminance[0], a_channel_chroma, b_channel_chromas[0])
-
-
+    for i in range(len(predictions)):
+        a_channel_chroma = scale_image(predictions[i])
+        reconstruct(luminance[i], a_channel_chroma, b_channel_chromas[i], i)
 main()
