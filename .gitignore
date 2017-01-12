@@ -1,3 +1,5 @@
 model/
 predicted_images/
 brisk_features/
+a_channel_chroma/
+b_channel_chroma/
