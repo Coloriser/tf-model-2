@@ -8,6 +8,14 @@ from tflearn.layers.estimator import regression
 
 import numpy as np
 import pickle
+import argparse
+
+def parse_arguments():						#argument parser -d for the pathlist
+    parser = argparse.ArgumentParser(description='Trains the model, to be used after running pre-works')
+    parser.add_argument('-a', help='to train based on a-channel', required=False,action="store_true", default=False)
+    parser.add_argument('-b', help='to train based on b-channel', required=False,action="store_true", default=False)
+    args = parser.parse_args()
+    return args
 
 
 def load_from_pickle(path):
@@ -124,5 +132,16 @@ def make_b_model():
 	model_b_channel.save("model/b_channel.model")
 
 
-# make_a_model()
-make_b_model()
+def main():
+	args = parse_arguments()
+	print(args)
+	if args.a:
+		print("Training model based on a-channel")
+		make_a_model()
+	if args.b:	
+		print("Training model based on b-channel")
+		make_b_model()
+	if not args.a and not args.b:
+		print("ERROR: use -h for HELP")
+
+main()
