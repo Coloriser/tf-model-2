@@ -5,7 +5,7 @@ import numpy
 from extract_chroma import extract_a_channel,extract_b_channel,extract_l_channel
 import pickle
 
-EXTENSIONS = [".jpg"]
+EXTENSIONS = [".jpg",".png"]
 
 def get_image_paths(path="dataset/train"):
     """Get the list of all the image files in the train directory"""
@@ -14,7 +14,6 @@ def get_image_paths(path="dataset/train"):
                     for fname in glob(path + "/*")
                     if splitext(fname)[-1].lower() in EXTENSIONS])
     return image_paths
-
 def get_brisk_features(image_path):
 	""" Process an image and return the BRISK features"""
 	return brisk.get_features(image_path)
