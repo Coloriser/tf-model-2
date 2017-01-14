@@ -1,12 +1,6 @@
-model/
-predicted_images/
-brisk_features/
-a_channel_chroma/
-b_channel_chroma/
-
 .DS_Store
 *.pyc
-*.model
+*.model.*
 *.a_channel_chroma
 *.b_channel_chroma
 *.l_channel_luminance
