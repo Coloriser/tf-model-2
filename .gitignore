@@ -3,5 +3,14 @@ predicted_images/
 brisk_features/
 a_channel_chroma/
 b_channel_chroma/
+
+.DS_Store
 *.pyc
 *.model
+*.a_channel_chroma
+*.b_channel_chroma
+*.l_channel_luminance
+a_channel_chroma_paths
+b_channel_chroma_paths
+l_channel_luminance_paths
+brisk_paths
