@@ -106,20 +106,21 @@ def make_a_model():
 	print("loading brisk features...")
 	brisk_features = load_brisk_features(brisk_paths)
 
-	print("Before normalization")
+	# print("Before normalization")
 	# print(brisk_features[0].shape)
 	# print(brisk_features[1].shape)
 
+	print("Normalizing Brisk features")
 	modified_brisk_features = normalize_brisk_array(brisk_features)
 
 	No_Of_Test_Items = len(modified_brisk_features)
 	
-	print("After normalization")
+	# print("After normalization")
 	# print(modified_brisk_features[0].shape)
 	# print(modified_brisk_features[1].shape)
 
 	print("modifying the shape of input and output")
-	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, 344, 64, 1])
+	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
 
 	print("loading a channel chroma...")
 	a_channel_chromas = load_a_channel_chroma(a_channel_paths)
@@ -139,20 +140,21 @@ def make_b_model():
 	print("loading brisk features...")
 	brisk_features = load_brisk_features(brisk_paths)
 
-	print("Before normalization")
+	# print("Before normalization")
 	# print(brisk_features[0].shape)
 	# print(brisk_features[1].shape)
 
+	print("Normalizing Brisk features")
 	modified_brisk_features = normalize_brisk_array(brisk_features)
 	No_Of_Test_Items = len(modified_brisk_features)
 
 
-	print("After normalization")
+	# print("After normalization")
 	# print(modified_brisk_features[0].shape)
 	# print(modified_brisk_features[1].shape)
 
 	print("modifying the shape of input and output")
-	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, 344, 64, 1])
+	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
 
 	print("train_x: ",train_x.shape)
 
@@ -174,7 +176,7 @@ def make_b_model():
 
 def main():
 	args = parse_arguments()
-	print(args)
+	# print(args)
 	if args.a:
 		print("Training model based on a-channel")
 		make_a_model()

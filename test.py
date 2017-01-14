@@ -11,18 +11,29 @@ import pickle
 import skimage.color as color
 import skimage.io as io
 
+import argparse
+
+import pre_works_test as pre_works
+
+
+def parse_arguments():                      #argument parser -d for the pathlist
+    parser = argparse.ArgumentParser(description='Tests the model, to be used after creating the model')
+    parser.add_argument("--path",'-p', help='the path to input (default: ./dataset/test)', required=False, default="./dataset/test")
+    args = parser.parse_args()
+    return args.path
+
+
 def load_from_pickle(path):
     f = open(path, "rb")
     value = pickle.load(f)
     f.close()
     return value
 
-
 def load_brisk_paths():
-    return load_from_pickle('brisk_paths')
+    return load_from_pickle('paths_for_test/brisk_paths')
 
 def load_luminance_paths():
-    return load_from_pickle('l_channel_luminance_paths')
+    return load_from_pickle('paths_for_test/l_channel_luminance_paths')
 
 def load_brisk_features(paths):
     brisk_features = []
@@ -39,7 +50,7 @@ def load_luminance(paths):
     return luminance
 
 def load_b_channel_chroma_paths():
-    return load_from_pickle('b_channel_chroma_paths')
+    return load_from_pickle('paths_for_test/b_channel_chroma_paths')
 
 def load_b_channel_chroma(paths):
     b_channel_chromas = []
@@ -95,9 +106,33 @@ def scale_image(chroma):
     chroma = np.reshape(chroma, (203,270))
     return chroma
 
+def normalize_brisk_array(brisk_features):      #to normalize the shape of each numpy array in brisk array
+    maximum_shape = (0,0)
+    modified_brisk_features=[]
+
+    # to find the maximum_shape
+    for each_feature in brisk_features:
+        if(each_feature.shape > maximum_shape):
+            maximum_shape = each_feature.shape
+    # to normalize brisk feature shape
+    for each_feature in brisk_features:
+            y = each_feature.copy()
+            y.resize(maximum_shape)
+            modified_brisk_features.append(y)
+    return modified_brisk_features
+
+
 def main():
+
+    DATASET_PATH = parse_arguments()
+
+    print("processing images")
+    pre_works.process_images(DATASET_PATH)
+
+    print("Loading model")
     model_a_channel = load_model("model/a_channel.model")
 
+    print("Loading paths")
     brisk_paths = load_brisk_paths()
     luminance_paths = load_luminance_paths()
     b_channel_paths = load_b_channel_chroma_paths()
@@ -111,13 +146,20 @@ def main():
     print("loading b channel chroma...")
     b_channel_chromas = load_b_channel_chroma(b_channel_paths)
 
+    print("Normalizing Brisk features")
+    modified_brisk_features = normalize_brisk_array(brisk_features)
+
+    No_Of_Test_Items = len(modified_brisk_features)
+
+
 
     print("modifying the shape of input and output")
-    train_x = np.array(brisk_features).reshape([1, 344, 64, 1])
+    train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
 
     predictions = model_a_channel.predict(train_x)
 
     for i in range(len(predictions)):
         a_channel_chroma = scale_image(predictions[i])
         reconstruct(luminance[i], a_channel_chroma, b_channel_chromas[i], i)
-main()
+
+main()        
