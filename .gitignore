@@ -10,3 +10,6 @@ a_channel_chroma_paths
 b_channel_chroma_paths
 l_channel_luminance_paths
 brisk_paths
+brisk_features/
+model/
+predicted_images/
