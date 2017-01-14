@@ -5,3 +5,9 @@ a_channel_chroma/
 b_channel_chroma/
 *.pyc
 *.model
+.DS_Store
+*/.DS_Store
+a_channel_chroma_paths
+b_channel_chroma_paths
+brisk_paths
+l_channel_luminance_paths
