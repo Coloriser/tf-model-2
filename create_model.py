@@ -17,6 +17,20 @@ def parse_arguments():						#argument parser -d for the pathlist
     args = parser.parse_args()
     return args
 
+def normalize_brisk_array(brisk_features):		#to normalize the shape of each numpy array in brisk array
+	maximum_shape = (0,0)
+	modified_brisk_features=[]
+
+	# to find the maximum_shape
+	for each_feature in brisk_features:
+		if(each_feature.shape > maximum_shape):
+			maximum_shape = each_feature.shape
+	# to normalize brisk feature shape
+	for each_feature in brisk_features:
+			y = each_feature.copy()
+			y.resize(maximum_shape)
+			modified_brisk_features.append(y)
+	return modified_brisk_features
 
 def load_from_pickle(path):
 	f = open(path, "rb")
@@ -92,13 +106,26 @@ def make_a_model():
 	print("loading brisk features...")
 	brisk_features = load_brisk_features(brisk_paths)
 
+	# print("Before normalization")
+	# print(brisk_features[0].shape)
+	# print(brisk_features[1].shape)
+
+	print("Normalizing Brisk features")
+	modified_brisk_features = normalize_brisk_array(brisk_features)
+
+	No_Of_Test_Items = len(modified_brisk_features)
+	
+	# print("After normalization")
+	# print(modified_brisk_features[0].shape)
+	# print(modified_brisk_features[1].shape)
+
 	print("modifying the shape of input and output")
-	train_x = np.array(brisk_features).reshape([1, 344, 64, 1])
+	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
 
 	print("loading a channel chroma...")
 	a_channel_chromas = load_a_channel_chroma(a_channel_paths)
 
-	train_y_a_channel = np.array(a_channel_chromas).reshape(1,54810)
+	train_y_a_channel = np.array(a_channel_chromas).reshape(No_Of_Test_Items,54810)
 	train_y_a_channel = train_y_a_channel+128
 	train_y_a_channel = train_y_a_channel/256.0
 
@@ -113,8 +140,23 @@ def make_b_model():
 	print("loading brisk features...")
 	brisk_features = load_brisk_features(brisk_paths)
 
+	# print("Before normalization")
+	# print(brisk_features[0].shape)
+	# print(brisk_features[1].shape)
+
+	print("Normalizing Brisk features")
+	modified_brisk_features = normalize_brisk_array(brisk_features)
+	No_Of_Test_Items = len(modified_brisk_features)
+
+
+	# print("After normalization")
+	# print(modified_brisk_features[0].shape)
+	# print(modified_brisk_features[1].shape)
+
 	print("modifying the shape of input and output")
-	train_x = np.array(brisk_features).reshape([1, 344, 64, 1])
+	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
+
+	print("train_x: ",train_x.shape)
 
 
 	b_channel_paths = load_b_channel_chroma_paths()
@@ -122,7 +164,7 @@ def make_b_model():
 	print("loading b channel chroma...")
 	b_channel_chromas = load_b_channel_chroma(b_channel_paths)
 
-	train_y_b_channel = np.array(b_channel_chromas).reshape(1,54810)
+	train_y_b_channel = np.array(b_channel_chromas).reshape(No_Of_Test_Items,54810)
 	train_y_b_channel = train_y_b_channel+128
 	train_y_b_channel = train_y_b_channel/256.0
 
@@ -134,7 +176,7 @@ def make_b_model():
 
 def main():
 	args = parse_arguments()
-	print(args)
+	# print(args)
 	if args.a:
 		print("Training model based on a-channel")
 		make_a_model()
