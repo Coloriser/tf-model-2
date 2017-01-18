@@ -1,10 +1,17 @@
 #Repository to test out creating a custom model for TensorFlow
 
-###Step 1 : Convert the training dataset to train-ready state.
+###For running the project for first time.
+
+        sh do_first.sh
+###Step 1: Convert the input dataset to a common resolution
+
+        python rename.py
+        
+###Step 2 : Convert the training dataset to train-ready state.
 
         python pre_works_train.py
         
-###Step 2 : Train the model.
+###Step 3 : Train the model.
 
   for a channel training
   
@@ -14,11 +21,11 @@
   
         python create_model.py -b 
         
-###Step 3: Convert the testing dataset to test-ready state
+###Step 4 : Convert the testing dataset to test-ready state
 
         python pre_works_test.py
         
-###Step 4: Test the model
+###Step 5 : Test the model
 
   for a channel testing
   
