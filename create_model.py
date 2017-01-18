@@ -50,22 +50,31 @@ def load_b_channel_chroma_paths():
 def load_brisk_features(paths):
 	brisk_features = []
 	for path in paths:
-		feature = load_from_pickle(path)
-		brisk_features.append(feature)
+		try:
+			feature = load_from_pickle(path)
+			brisk_features.append(feature)
+		except:
+			print("Error at Brisk load")	
 	return brisk_features
 
 def load_a_channel_chroma(paths):
 	a_channel_chromas = []
 	for path in paths:
-		chroma = load_from_pickle(path)
-		a_channel_chromas.append(chroma)
+		try:				
+			chroma = load_from_pickle(path)
+			a_channel_chromas.append(chroma)
+		except:
+			print("Error at A_Channel load")	
 	return a_channel_chromas
 
 def load_b_channel_chroma(paths):
 	b_channel_chromas = []
 	for path in paths:
-		chroma = load_from_pickle(path)
-		b_channel_chromas.append(chroma)
+		try:
+			chroma = load_from_pickle(path)
+			b_channel_chromas.append(chroma)
+		except:
+			print("Error at B_Channel load")	
 	return b_channel_chromas
 
 def pickle_shape( x, y):

@@ -8,3 +8,13 @@ a_channel_chroma_paths
 b_channel_chroma_paths
 l_channel_luminance_paths
 brisk_paths
+
+predicted_a_chroma
+predicted_b_chroma
+shape_of_in_and_out
+
+predicted_images
+
+brisk_features
+
+dataset
