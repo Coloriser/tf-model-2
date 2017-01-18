@@ -13,7 +13,7 @@ import skimage.io as io
 
 import argparse
 
-import pre_works_test as pre_works
+# import pre_works_test as pre_works
 
 x=[]
 y=[]
@@ -171,8 +171,9 @@ def main():
 
     DATASET_PATH = args.path
 
-    print("processing images")
-    pre_works.process_images(DATASET_PATH)
+    #FOR AKHEEL
+    # print("processing images")
+    # pre_works.process_images(DATASET_PATH)
 
     ab_flag = False    
 
