@@ -138,8 +138,9 @@ def scale_image(chroma):
     chroma = np.reshape(chroma, (200,200))
     return chroma
 
-def normalize_brisk_array(brisk_features):      #to normalize the shape of each numpy array in brisk array
-    maximum_shape = (0,0)
+def normalize_brisk_array_ver_test(brisk_features):      #to normalize the shape of each numpy array in brisk array
+    pickled_input_shape = import_shape_from_pickle()[0]
+    maximum_shape = (pickled_input_shape[1],pickled_input_shape[2])
     modified_brisk_features=[]
 
     # to find the maximum_shape
@@ -205,7 +206,7 @@ def main():
     luminance = load_luminance(luminance_paths)
 
     print("Normalizing Brisk features")
-    modified_brisk_features = normalize_brisk_array(brisk_features)
+    modified_brisk_features = normalize_brisk_array_ver_test(brisk_features)
 
     No_Of_Test_Items = len(modified_brisk_features)
 

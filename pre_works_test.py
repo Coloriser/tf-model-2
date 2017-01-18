@@ -101,3 +101,4 @@ def process_images(input_dataset_path):
     save_blob(b_channel_chroma_paths, "paths_for_test/b_channel_chroma_paths")
     save_blob(l_channel_luminance_paths, "paths_for_test/l_channel_luminance_paths")
 
+process_images("./dataset/test")
