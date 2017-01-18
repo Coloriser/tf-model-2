@@ -18,8 +18,8 @@ def real_a_channel(a_arr):
 
 def predicted_a_channel(a_arr):
 
-	b_arr = np.zeros( shape = a_arr.shape)
-	l_arr = np.zeros( shape = a_arr.shape)
+	b_arr = np.zeros( shape = a_arr.shape )
+	l_arr = np.zeros( shape = a_arr.shape )
 
 	img = np.vstack(([l_arr.T], [a_arr.T], [b_arr.T])).T
 	rgb_image = color.lab2rgb(img)
@@ -43,9 +43,3 @@ real_a_arr = img_lab[:,:,1]
 
 real_a_channel(real_a_arr)
 predicted_a_channel(predicted_a_arr)
-
-
-
-
-
-	
