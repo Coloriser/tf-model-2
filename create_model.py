@@ -50,31 +50,49 @@ def load_b_channel_chroma_paths():
 def load_brisk_features(paths):
 	brisk_features = []
 	for path in paths:
-		feature = load_from_pickle(path)
-		brisk_features.append(feature)
+		try:
+			feature = load_from_pickle(path)
+			brisk_features.append(feature)
+		except:
+			print("Error at Brisk load")	
 	return brisk_features
 
 def load_a_channel_chroma(paths):
 	a_channel_chromas = []
 	for path in paths:
-		chroma = load_from_pickle(path)
-		a_channel_chromas.append(chroma)
+		try:				
+			chroma = load_from_pickle(path)
+			a_channel_chromas.append(chroma)
+		except:
+			print("Error at A_Channel load")	
 	return a_channel_chromas
 
 def load_b_channel_chroma(paths):
 	b_channel_chromas = []
 	for path in paths:
-		chroma = load_from_pickle(path)
-		b_channel_chromas.append(chroma)
+		try:
+			chroma = load_from_pickle(path)
+			b_channel_chromas.append(chroma)
+		except:
+			print("Error at B_Channel load")	
 	return b_channel_chromas
+
+def pickle_shape( x, y):
+	a = {"input_shape" : x.shape,"output_shape" : y.shape}
+	path = 'shape_of_in_and_out'
+	f = open(path, "wb")
+	value = pickle.dump(a, f)
+	f.close()
+	return value		
 
 def make_model(x, y):
 
 	print("X :",x.shape)
 	print("Y :",y.shape)
 
-	# Building convolutional network
-	network = input_data(shape=[None, 344, 64, 1], name='input')
+
+	# Building convolutional networ
+	network = input_data(shape=[None, x.shape[1], x.shape[2], 1], name='input')
 
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
@@ -88,13 +106,13 @@ def make_model(x, y):
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
 
-	network = fully_connected(network, 54810, activation='sigmoid')
+	network = fully_connected(network, y.shape[1], activation='sigmoid')
 	network = regression(network, optimizer='adam', learning_rate=0.01,
 	                     loss='categorical_crossentropy', name='target')
 
 	# Training
 	model = tflearn.DNN(network, tensorboard_verbose=2)
-	model.fit({'input': x}, {'target': y} , n_epoch=1)
+	model.fit({'input': x}, {'target': y} , n_epoch=100)
 
 	return model
 
@@ -125,10 +143,12 @@ def make_a_model():
 	print("loading a channel chroma...")
 	a_channel_chromas = load_a_channel_chroma(a_channel_paths)
 
-	train_y_a_channel = np.array(a_channel_chromas).reshape(No_Of_Test_Items,54810)
+	train_y_a_channel = np.array(a_channel_chromas).reshape(No_Of_Test_Items,-1)
 	train_y_a_channel = train_y_a_channel+128
 	train_y_a_channel = train_y_a_channel/256.0
 
+	print("Pickling shapes")
+	pickle_shape(train_x,train_y_a_channel)
 
 	print("Generating A channel model")
 	model_a_channel = make_model(train_x, train_y_a_channel)
@@ -164,10 +184,12 @@ def make_b_model():
 	print("loading b channel chroma...")
 	b_channel_chromas = load_b_channel_chroma(b_channel_paths)
 
-	train_y_b_channel = np.array(b_channel_chromas).reshape(No_Of_Test_Items,54810)
+	train_y_b_channel = np.array(b_channel_chromas).reshape(No_Of_Test_Items, -1)
 	train_y_b_channel = train_y_b_channel+128
 	train_y_b_channel = train_y_b_channel/256.0
 
+	print("Pickling shapes")
+	pickle_shape(train_x,train_y_b_channel)
 
 	print("Generating B channel model")
 	model_b_channel = make_model(train_x, train_y_b_channel)

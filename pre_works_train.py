@@ -75,17 +75,23 @@ def main():
     b_channel_chroma_paths = map(create_b_channel_chroma_path, image_paths)
     l_channel_luminance_paths = map(create_l_channel_luminance_path, image_paths)
 
+    print ("Paths generated")
+
     for i in range(len(image_paths)):
 
-        brisk_features = get_brisk_features(image_paths[i])
-        a_channel_chroma = get_a_channel_chroma(image_paths[i])
-        b_channel_chroma = get_b_channel_chroma(image_paths[i])
-        l_channel_luminance = get_l_channel_luminance(image_paths[i])
-
-        save_blob(brisk_features, brisk_paths[i])
-        save_blob(a_channel_chroma, a_channel_chroma_paths[i])
-        save_blob(b_channel_chroma, b_channel_chroma_paths[i])
-        save_blob(l_channel_luminance, l_channel_luminance_paths[i])
+        try:
+            print("Working on "+ str(i) + " out of " + str(len(image_paths)) + ' : ' + image_paths[i])
+            brisk_features = get_brisk_features(image_paths[i])
+            a_channel_chroma = get_a_channel_chroma(image_paths[i])
+            b_channel_chroma = get_b_channel_chroma(image_paths[i])
+            l_channel_luminance = get_l_channel_luminance(image_paths[i])
+        except:
+            print "Error"
+        else:    
+            save_blob(brisk_features, brisk_paths[i])
+            save_blob(a_channel_chroma, a_channel_chroma_paths[i])
+            save_blob(b_channel_chroma, b_channel_chroma_paths[i])
+            save_blob(l_channel_luminance, l_channel_luminance_paths[i])
 
     save_blob(brisk_paths, "brisk_paths")
     save_blob(a_channel_chroma_paths, "a_channel_chroma_paths")
