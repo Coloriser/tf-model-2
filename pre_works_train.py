@@ -1,9 +1,9 @@
-import brisk
+import pre_works_train_helper as pwt
 from glob import glob
 from os.path import exists, join, basename, splitext
-import numpy
-from extract_chroma import extract_a_channel,extract_b_channel,extract_l_channel
-import pickle
+
+import multiprocessing as mp
+
 
 EXTENSIONS = [".jpg",".png"]
 
@@ -16,87 +16,32 @@ def get_image_paths(path="dataset/train"):
     return image_paths
 
 
-def get_brisk_features(image_path):
-	""" Process an image and return the BRISK features"""
-	return brisk.get_features(image_path)	
 
-def get_a_channel_chroma(image_path):
-    """ Process an image and return the A channel chroma"""
-    return extract_a_channel(image_path)
-    
-def get_b_channel_chroma(image_path):
-    """ Process an image and return the B channel chroma"""
-    return extract_b_channel(image_path)
-    
-def get_l_channel_luminance(image_path):
-    """ Process an image and return the L channel luminance"""
-    return extract_l_channel(image_path)
-
-
-def create_brisk_path(image_path):
-    """ Create path to store the BRISK feature given path to an image"""
-    path =  image_path.split(".")[0]
-    path = path.replace("dataset", "brisk_features")
-    return path + ".brisk"
-
-def create_a_channel_chroma_path(image_path):
-    """ Create path to store the A channel chroma given path to an image"""
-    path =  image_path.split(".")[0]
-    path = path.replace("dataset", "a_channel_chroma")
-    path = path.replace("/train", "")
-    return path + ".a_channel_chroma"
-
-def create_b_channel_chroma_path(image_path):
-    """ Create path to store the A channel chroma given path to an image"""
-    path =  image_path.split(".")[0]
-    path = path.replace("dataset", "b_channel_chroma")
-    path = path.replace("/train", "")
-    return path + ".b_channel_chroma"
-
-def create_l_channel_luminance_path(image_path):
-    """ Create path to store the A channel chroma given path to an image"""
-    path =  image_path.split(".")[0]
-    path = path.replace("dataset", "l_channel_luminance")
-    path = path.replace("/train", "")
-    return path + ".l_channel_luminance"
-
-
-def save_blob(content, path):
-    f = open(path, "wb")
-    pickle.dump(content, f)
-    f.close()
-
-
-def main():
-
+def begin_threaded_execution():
     image_paths = get_image_paths()
-    brisk_paths = map(create_brisk_path, image_paths)
-    a_channel_chroma_paths = map(create_a_channel_chroma_path, image_paths)
-    b_channel_chroma_paths = map(create_b_channel_chroma_path, image_paths)
-    l_channel_luminance_paths = map(create_l_channel_luminance_path, image_paths)
 
-    print ("Paths generated")
+    No_of_images = len( image_paths )
+    No_of_cores = mp.cpu_count()
+    images_per_core = No_of_images / No_of_cores
+    threads = []
 
-    for i in range(len(image_paths)):
+    process_list = []
+    for ith_core in range(No_of_cores):
+        # Building processes list
+        start_point = images_per_core * ith_core
+        end_point = images_per_core * (ith_core+1)
 
-        try:
-            print("Working on "+ str(i) + " out of " + str(len(image_paths)) + ' : ' + image_paths[i])
-            brisk_features = get_brisk_features(image_paths[i])
-            a_channel_chroma = get_a_channel_chroma(image_paths[i])
-            b_channel_chroma = get_b_channel_chroma(image_paths[i])
-            l_channel_luminance = get_l_channel_luminance(image_paths[i])
-        except:
-            print "Error"
-        else:    
-            save_blob(brisk_features, brisk_paths[i])
-            save_blob(a_channel_chroma, a_channel_chroma_paths[i])
-            save_blob(b_channel_chroma, b_channel_chroma_paths[i])
-            save_blob(l_channel_luminance, l_channel_luminance_paths[i])
+        if ith_core != No_of_cores-1:
+            sub_array = image_paths[start_point:end_point]
+        else:
+            sub_array = image_paths[start_point:]
+        print("Beginning execution of thread " + str(ith_core)  + " with " + str(len(sub_array)) + " images")
+        process_list.append(mp.Process(target=pwt.process_images, args=(sub_array, ith_core)))
 
-    save_blob(brisk_paths, "brisk_paths")
-    save_blob(a_channel_chroma_paths, "a_channel_chroma_paths")
-    save_blob(b_channel_chroma_paths, "b_channel_chroma_paths")
-    save_blob(l_channel_luminance_paths, "l_channel_luminance_paths")
-
-main()
-
+    for p in process_list:
+        p.start()
+    for p in process_list:
+        p.join()    
+    print("Done")
+    
+begin_threaded_execution()        

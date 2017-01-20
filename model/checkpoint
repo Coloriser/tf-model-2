@@ -1,2 +1,2 @@
-model_checkpoint_path: "b_channel.model"
-all_model_checkpoint_paths: "b_channel.model"
+model_checkpoint_path: "a_channel.model"
+all_model_checkpoint_paths: "a_channel.model"

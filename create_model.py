@@ -91,18 +91,37 @@ def make_model(x, y):
 	print("Y :",y.shape)
 
 
-	# Building convolutional networ
+	# Building convolutional network
 	network = input_data(shape=[None, x.shape[1], x.shape[2], 1], name='input')
 
+	#1
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
-
+	#2
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
-
+	#3
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
-
+	#4
+	network = fully_connected(network, 128, activation='sigmoid')
+	network = dropout(network, 0.8)
+	#5
+	network = fully_connected(network, 128, activation='sigmoid')
+	network = dropout(network, 0.8)
+	#6
+	network = fully_connected(network, 128, activation='sigmoid')
+	network = dropout(network, 0.8)
+	#7
+	network = fully_connected(network, 128, activation='sigmoid')
+	network = dropout(network, 0.8)
+	#8
+	network = fully_connected(network, 128, activation='sigmoid')
+	network = dropout(network, 0.8)
+	#9
+	network = fully_connected(network, 128, activation='sigmoid')
+	network = dropout(network, 0.8)
+	#10
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
 

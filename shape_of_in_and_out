@@ -1,14 +1,14 @@
 (dp0
 S'input_shape'
 p1
-(I56
-I241
+(I552
+I300
 I64
 I1
 tp2
 sS'output_shape'
 p3
-(I56
+(I552
 I40000
 tp4
 s.
