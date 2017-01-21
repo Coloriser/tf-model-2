@@ -8,10 +8,13 @@
 *.l*
 *.sift*
 *.brisk*
+shape_of_in_and_out*
 a_channel_chroma_paths
 b_channel_chroma_paths
 l_channel_luminance_paths
 brisk_paths
+sift_paths
+model/*
 
 brisk_features
 model
