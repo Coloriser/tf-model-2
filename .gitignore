@@ -8,6 +8,9 @@
 *.l*
 *.sift*
 *.brisk*
+*.jpg
+*.png 
+
 shape_of_in_and_out*
 a_channel_chroma_paths
 b_channel_chroma_paths
