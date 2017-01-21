@@ -34,7 +34,9 @@ def begin_threaded_execution():
         No_of_cores = 1
         print("MULTIPROCESSING : OFF")
     else:
-        print("MULTIPROCESSING : ON")        
+        print("MULTIPROCESSING : ON")
+        print("No of cores     : " + str(No_of_cores))
+
 
     images_per_core = No_of_images / No_of_cores
     threads = []
@@ -56,6 +58,8 @@ def begin_threaded_execution():
         p.start()
     for p in process_list:
         p.join()    
-    print("Done")
+    print("Processing done, saving paths.")
+    pwt.save_paths( image_paths )
+    print(str( len(image_paths) ) + " images processed. Proceed to testing.") 
 
 begin_threaded_execution()        

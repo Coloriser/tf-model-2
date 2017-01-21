@@ -45,6 +45,6 @@
 
         sh do_first.sh
 
-3: For cleaning temp files and model.
+3: For clearing temp files and model.
 
         sh delete_temps.sh

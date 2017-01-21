@@ -33,7 +33,12 @@ def begin_threaded_execution():
     # Check if multiprocessing is really necessary
     if No_of_images<No_of_cores:
         No_of_cores = 1
+        print("MULTIPROCESSING : OFF")
+    else:
+        print("MULTIPROCESSING : ON")
+        print("No of cores     : " + str(No_of_cores))
 
+        
     images_per_core = No_of_images / No_of_cores
     threads = []
 

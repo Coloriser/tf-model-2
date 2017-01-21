@@ -75,10 +75,10 @@ def make_model(x, y):
 def prereq_load_and_compute( mode , SIFT=False):
 	if SIFT==True:
 		print("SIFT")
-		paths = hf.load_sift_paths()
+		paths = hf.load_sift_paths('train')
 	else:
 		print("BRISK")
-		paths = hf.load_brisk_paths()
+		paths = hf.load_brisk_paths('train')
 	print("loading features...")
 	features = hf.load_features(paths)
 	print(str(len(features)) + " items loaded.")	
@@ -87,14 +87,14 @@ def prereq_load_and_compute( mode , SIFT=False):
 	No_Of_Test_Items = len(modified_feature_arr)
 	
 	if mode=='a':
-		a_channel_paths = hf.load_a_channel_chroma_paths()
+		a_channel_paths = hf.load_a_channel_chroma_paths('train')
 		print("loading a channel chroma...")
 		a_channel_chromas = hf.load_a_channel_chroma(a_channel_paths)
 		print(str(len(a_channel_chromas)) + " items loaded.")	
 		train_y_channel = np.array(a_channel_chromas).reshape(No_Of_Test_Items,-1)
 
 	else:	
-		b_channel_paths = hf.load_b_channel_chroma_paths()
+		b_channel_paths = hf.load_b_channel_chroma_paths('train')
 		print("loading b channel chroma...")
 		b_channel_chromas = hf.load_b_channel_chroma(b_channel_paths)
 		print(str(len(b_channel_chromas)) + " items loaded.")
