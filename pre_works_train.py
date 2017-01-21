@@ -1,14 +1,21 @@
-import pre_works_train_helper as pwt
 from glob import glob
 from os.path import exists, join, basename, splitext
 
 import multiprocessing as mp
 
+# import helper_modules dir
+import sys
+sys.path.insert(0, './helper_modules')
+
+import pre_works_SIFT_train as pwt
+# import pre_works_BRISK_train as pwt
+
+
 
 EXTENSIONS = [".jpg",".png"]
 
 def get_image_paths(path="dataset/train"):
-    """Get the list of all the image files in the train directory"""
+    """Get the list of all image files in the train directory"""
     image_paths = []
     image_paths.extend([join(path, basename(fname))
                     for fname in glob(path + "/*")
@@ -22,8 +29,16 @@ def begin_threaded_execution():
 
     No_of_images = len( image_paths )
     No_of_cores = mp.cpu_count()
+
+    # Check if multiprocessing is really necessary
+    if No_of_images<No_of_cores:
+        No_of_cores = 1
+
     images_per_core = No_of_images / No_of_cores
     threads = []
+
+    # Define an output queue
+    output = mp.Queue()
 
     process_list = []
     for ith_core in range(No_of_cores):
@@ -42,6 +57,8 @@ def begin_threaded_execution():
         p.start()
     for p in process_list:
         p.join()    
-    print("Done")
-    
+    print("Processing done, saving paths.")
+    pwt.save_paths( image_paths )
+    print(str( len(image_paths) ) + " images processed. Proceed to training.") 
+
 begin_threaded_execution()        

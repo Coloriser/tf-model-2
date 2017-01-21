@@ -106,15 +106,34 @@ def load_model(path):
     # Building convolutional network
     network = input_data(shape=[None, x[1], x[2], 1], name='input')
 
+    #1
     network = fully_connected(network, 128, activation='sigmoid')
     network = dropout(network, 0.8)
-
+    #2
     network = fully_connected(network, 128, activation='sigmoid')
     network = dropout(network, 0.8)
-
+    #3
     network = fully_connected(network, 128, activation='sigmoid')
     network = dropout(network, 0.8)
-
+    #4
+    network = fully_connected(network, 128, activation='sigmoid')
+    network = dropout(network, 0.8)
+    #5
+    network = fully_connected(network, 128, activation='sigmoid')
+    network = dropout(network, 0.8)
+    #6
+    network = fully_connected(network, 128, activation='sigmoid')
+    network = dropout(network, 0.8)
+    #7
+    network = fully_connected(network, 128, activation='sigmoid')
+    network = dropout(network, 0.8)
+    #8
+    network = fully_connected(network, 128, activation='sigmoid')
+    network = dropout(network, 0.8)
+    #9
+    network = fully_connected(network, 128, activation='sigmoid')
+    network = dropout(network, 0.8)
+    #10
     network = fully_connected(network, 128, activation='sigmoid')
     network = dropout(network, 0.8)
 
@@ -223,7 +242,10 @@ def main():
     train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
 
     if args.a:
-        model_a_channel = load_a_model()
+        try:
+            model_a_channel = load_a_model()
+        except:
+            print("Error loading model")
         predictions = model_a_channel.predict(train_x)
         print("Dumping a_chroma")
         save_blob(predictions, 'predicted_a_chroma')
@@ -231,7 +253,10 @@ def main():
             a_channel_chroma = scale_image(predictions[i])
             reconstruct(luminance[i], a_channel_chroma,b_channel_chromas[i], i, 'A')
     if args.b:
-        model_b_channel = load_b_model()
+        try:
+            model_b_channel = load_b_model()
+        except:
+            print("Error loading model")
         predictions = model_b_channel.predict(train_x)
         print("Dumping b_chroma")
         save_blob(predictions, 'predicted_b_chroma')    

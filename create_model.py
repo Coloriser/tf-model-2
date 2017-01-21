@@ -7,8 +7,11 @@ from tflearn.layers.normalization import local_response_normalization
 from tflearn.layers.estimator import regression
 
 import numpy as np
-import pickle
 import argparse
+
+import sys
+sys.path.insert(0, './helper_modules')
+import helper_functions as hf
 
 def parse_arguments():						#argument parser -d for the pathlist
     parser = argparse.ArgumentParser(description='Trains the model, to be used after running pre-works')
@@ -17,73 +20,6 @@ def parse_arguments():						#argument parser -d for the pathlist
     args = parser.parse_args()
     return args
 
-def normalize_brisk_array(brisk_features):		#to normalize the shape of each numpy array in brisk array
-	maximum_shape = (0,0)
-	modified_brisk_features=[]
-
-	# to find the maximum_shape
-	for each_feature in brisk_features:
-		if(each_feature.shape > maximum_shape):
-			maximum_shape = each_feature.shape
-	# to normalize brisk feature shape
-	for each_feature in brisk_features:
-			y = each_feature.copy()
-			y.resize(maximum_shape)
-			modified_brisk_features.append(y)
-	return modified_brisk_features
-
-def load_from_pickle(path):
-	f = open(path, "rb")
-	value = pickle.load(f)
-	f.close()
-	return value
-
-def load_brisk_paths():
-	return load_from_pickle('brisk_paths')
-
-def load_a_channel_chroma_paths():
-	return load_from_pickle('a_channel_chroma_paths')
-
-def load_b_channel_chroma_paths():
-	return load_from_pickle('b_channel_chroma_paths')
-
-def load_brisk_features(paths):
-	brisk_features = []
-	for path in paths:
-		try:
-			feature = load_from_pickle(path)
-			brisk_features.append(feature)
-		except:
-			print("Error at Brisk load")	
-	return brisk_features
-
-def load_a_channel_chroma(paths):
-	a_channel_chromas = []
-	for path in paths:
-		try:				
-			chroma = load_from_pickle(path)
-			a_channel_chromas.append(chroma)
-		except:
-			print("Error at A_Channel load")	
-	return a_channel_chromas
-
-def load_b_channel_chroma(paths):
-	b_channel_chromas = []
-	for path in paths:
-		try:
-			chroma = load_from_pickle(path)
-			b_channel_chromas.append(chroma)
-		except:
-			print("Error at B_Channel load")	
-	return b_channel_chromas
-
-def pickle_shape( x, y):
-	a = {"input_shape" : x.shape,"output_shape" : y.shape}
-	path = 'shape_of_in_and_out'
-	f = open(path, "wb")
-	value = pickle.dump(a, f)
-	f.close()
-	return value		
 
 def make_model(x, y):
 
@@ -136,79 +72,59 @@ def make_model(x, y):
 	return model
 
 
-def make_a_model():
-	brisk_paths = load_brisk_paths()
-	a_channel_paths = load_a_channel_chroma_paths()
-
-	print("loading brisk features...")
-	brisk_features = load_brisk_features(brisk_paths)
-
-	# print("Before normalization")
-	# print(brisk_features[0].shape)
-	# print(brisk_features[1].shape)
-
-	print("Normalizing Brisk features")
-	modified_brisk_features = normalize_brisk_array(brisk_features)
-
-	No_Of_Test_Items = len(modified_brisk_features)
+def prereq_load_and_compute( mode , SIFT=False):
+	if SIFT==True:
+		print("SIFT")
+		paths = hf.load_sift_paths()
+	else:
+		print("BRISK")
+		paths = hf.load_brisk_paths()
+	print("loading features...")
+	features = hf.load_features(paths)
+	print(str(len(features)) + " items loaded.")	
+	print("Normalizing features")
+	modified_feature_arr = hf.normalize_array(features)
+	No_Of_Test_Items = len(modified_feature_arr)
 	
-	# print("After normalization")
-	# print(modified_brisk_features[0].shape)
-	# print(modified_brisk_features[1].shape)
+	if mode=='a':
+		a_channel_paths = hf.load_a_channel_chroma_paths()
+		print("loading a channel chroma...")
+		a_channel_chromas = hf.load_a_channel_chroma(a_channel_paths)
+		print(str(len(a_channel_chromas)) + " items loaded.")	
+		train_y_channel = np.array(a_channel_chromas).reshape(No_Of_Test_Items,-1)
+
+	else:	
+		b_channel_paths = hf.load_b_channel_chroma_paths()
+		print("loading b channel chroma...")
+		b_channel_chromas = hf.load_b_channel_chroma(b_channel_paths)
+		print(str(len(b_channel_chromas)) + " items loaded.")
+		train_y_channel = np.array(b_channel_chromas).reshape(No_Of_Test_Items, -1)
+
+	train_y_channel = train_y_channel+128
+	train_y_channel = train_y_channel/256.0
 
 	print("modifying the shape of input and output")
-	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
-
-	print("loading a channel chroma...")
-	a_channel_chromas = load_a_channel_chroma(a_channel_paths)
-
-	train_y_a_channel = np.array(a_channel_chromas).reshape(No_Of_Test_Items,-1)
-	train_y_a_channel = train_y_a_channel+128
-	train_y_a_channel = train_y_a_channel/256.0
-
+	train_x = np.array(modified_feature_arr).reshape([No_Of_Test_Items, modified_feature_arr[0].shape[0], modified_feature_arr[0].shape[1], 1])
+	
 	print("Pickling shapes")
-	pickle_shape(train_x,train_y_a_channel)
+	hf.pickle_shape(train_x,train_y_channel)
+
+	print("train_x shape: ",train_x.shape)
+	print("train_y shape: ",train_y_channel.shape)
+
+	return train_x, train_y_channel
+
+def make_a_model(  ):
+
+	train_x, train_y_a_channel = prereq_load_and_compute( mode='a' , SIFT=True)
 
 	print("Generating A channel model")
 	model_a_channel = make_model(train_x, train_y_a_channel)
 	model_a_channel.save("model/a_channel.model")
 
 def make_b_model():
-	brisk_paths = load_brisk_paths()
 
-	print("loading brisk features...")
-	brisk_features = load_brisk_features(brisk_paths)
-
-	# print("Before normalization")
-	# print(brisk_features[0].shape)
-	# print(brisk_features[1].shape)
-
-	print("Normalizing Brisk features")
-	modified_brisk_features = normalize_brisk_array(brisk_features)
-	No_Of_Test_Items = len(modified_brisk_features)
-
-
-	# print("After normalization")
-	# print(modified_brisk_features[0].shape)
-	# print(modified_brisk_features[1].shape)
-
-	print("modifying the shape of input and output")
-	train_x = np.array(modified_brisk_features).reshape([No_Of_Test_Items, modified_brisk_features[0].shape[0], modified_brisk_features[0].shape[1], 1])
-
-	print("train_x: ",train_x.shape)
-
-
-	b_channel_paths = load_b_channel_chroma_paths()
-
-	print("loading b channel chroma...")
-	b_channel_chromas = load_b_channel_chroma(b_channel_paths)
-
-	train_y_b_channel = np.array(b_channel_chromas).reshape(No_Of_Test_Items, -1)
-	train_y_b_channel = train_y_b_channel+128
-	train_y_b_channel = train_y_b_channel/256.0
-
-	print("Pickling shapes")
-	pickle_shape(train_x,train_y_b_channel)
+	train_x, train_y_b_channel = prereq_load_and_compute( mode='b' , SIFT=True)
 
 	print("Generating B channel model")
 	model_b_channel = make_model(train_x, train_y_b_channel)

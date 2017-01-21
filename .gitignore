@@ -3,21 +3,24 @@
 .DS_Store
 */.DS_Store
 *.model.*
-*.a_channel_chroma
-*.b_channel_chroma
-*.l_channel_luminance
+*.a*
+*.b*
+*.l*
+*.sift*
+*.brisk*
 a_channel_chroma_paths
 b_channel_chroma_paths
 l_channel_luminance_paths
 brisk_paths
 
-brisk_features/
-model/
-predicted_images/
+brisk_features
+model
+predicted_images
 
 predicted_a_chroma
 predicted_b_chroma
 shape_of_in_and_out
 predicted_images
 brisk_features
+sift_features
 dataset

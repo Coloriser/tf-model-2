@@ -1,13 +1,20 @@
-import brisk
 from glob import glob
 from os.path import exists, join, basename, splitext
-import numpy
-from extract_chroma import extract_a_channel,extract_b_channel,extract_l_channel
-import pickle
+
+import multiprocessing as mp
+
+# import helper_modules dir
+import sys
+sys.path.insert(0, './helper_modules')
+
+import pre_works_SIFT_test as pwt
+# import pre_works_BRISK_test as pwt
+
+
 
 EXTENSIONS = [".jpg",".png"]
 
-def get_image_paths(path):
+def get_image_paths(path='./dataset/test'):
     """Get the list of all the image files in the train directory"""
     image_paths = []
     image_paths.extend([join(path, basename(fname))
@@ -16,94 +23,39 @@ def get_image_paths(path):
     return image_paths
 
 
-def create_brisk_path(image_path):
-    """ Create path to store the BRISK feature given path to an image"""
-    path =  image_path.split(".")[-2]
-    filename =  path.split("/")[-1]
-    path = "brisk_features/test/" + filename + ".brisk"
-    return path
+def begin_threaded_execution():
+    image_paths = get_image_paths()
 
-def create_a_channel_chroma_path(image_path):
-    """ Create path to store the A channel chroma given path to an image"""
-    path =  image_path.split(".")[-2]
-    filename =  path.split("/")[-1]
-    path = "a_channel_chroma/test/" + filename + ".a_channel_chroma"
-    # path = path.replace("dataset", "a_channel_chroma")
-    # path = path.replace("/train", "")
-    return path
+    No_of_images = len( image_paths )
+    No_of_cores = mp.cpu_count()
 
-def create_b_channel_chroma_path(image_path):
-    """ Create path to store the A channel chroma given path to an image"""
-    path =  image_path.split(".")[-2]
-    filename =  path.split("/")[-1]
-    path = "b_channel_chroma/test/" + filename + ".b_channel_chroma"
-    # path = path.replace("dataset", "b_channel_chroma")
-    # path = path.replace("/train", "")
-    return path
+    # Check if multiprocessing is really necessary
+    if No_of_images<No_of_cores:
+        No_of_cores = 1
+        print("MULTIPROCESSING : OFF")
+    else:
+        print("MULTIPROCESSING : ON")        
 
-def create_l_channel_luminance_path(image_path):
-    """ Create path to store the A channel chroma given path to an image"""
-    path =  image_path.split(".")[-2]
-    filename =  path.split("/")[-1]
-    path = "l_channel_luminance/test/" + filename + ".l_channel_luminance"
-    # path = path.replace("dataset", "l_channel_luminance")
-    # path = path.replace("/train", "")
-    return path
+    images_per_core = No_of_images / No_of_cores
+    threads = []
 
+    process_list = []
+    for ith_core in range(No_of_cores):
+        # Building processes list
+        start_point = images_per_core * ith_core
+        end_point = images_per_core * (ith_core+1)
 
-def save_blob(content, path):
-    f = open(path, "wb")
-    pickle.dump(content, f)
-    f.close()
-
-
-def get_brisk_features(image_path):
-	""" Process an image and return the BRISK features"""
-	return brisk.get_features(image_path)	
-
-def get_a_channel_chroma(image_path):
-    """ Process an image and return the A channel chroma"""
-    return extract_a_channel(image_path)
-    
-def get_b_channel_chroma(image_path):
-    """ Process an image and return the B channel chroma"""
-    return extract_b_channel(image_path)
-    
-def get_l_channel_luminance(image_path):
-    """ Process an image and return the L channel luminance"""
-    return extract_l_channel(image_path)
-
-
-def process_images(input_dataset_path):
-
-    image_paths = get_image_paths(input_dataset_path)
-    # print("image_paths: ",image_paths)
-    brisk_paths = map(create_brisk_path, image_paths)
-    # print("brisk_paths: ",brisk_paths)
-    a_channel_chroma_paths = map(create_a_channel_chroma_path, image_paths)
-    b_channel_chroma_paths = map(create_b_channel_chroma_path, image_paths)
-    l_channel_luminance_paths = map(create_l_channel_luminance_path, image_paths)
-
-    for i in range(len(image_paths)):
-
-        try:
-            brisk_features = get_brisk_features(image_paths[i])
-            a_channel_chroma = get_a_channel_chroma(image_paths[i])
-            b_channel_chroma = get_b_channel_chroma(image_paths[i])
-            l_channel_luminance = get_l_channel_luminance(image_paths[i])
-
-        except:
-            print("Error")
-
+        if ith_core != No_of_cores-1:
+            sub_array = image_paths[start_point:end_point]
         else:
-            save_blob(brisk_features, brisk_paths[i])
-            save_blob(a_channel_chroma, a_channel_chroma_paths[i])
-            save_blob(b_channel_chroma, b_channel_chroma_paths[i])
-            save_blob(l_channel_luminance, l_channel_luminance_paths[i])
+            sub_array = image_paths[start_point:]
+        print("Beginning execution of thread " + str(ith_core)  + " with " + str(len(sub_array)) + " images")
+        process_list.append(mp.Process(target=pwt.process_images, args=(sub_array, ith_core)))
 
-    save_blob(brisk_paths, "paths_for_test/brisk_paths")
-    save_blob(a_channel_chroma_paths, "paths_for_test/a_channel_chroma_paths")
-    save_blob(b_channel_chroma_paths, "paths_for_test/b_channel_chroma_paths")
-    save_blob(l_channel_luminance_paths, "paths_for_test/l_channel_luminance_paths")
+    for p in process_list:
+        p.start()
+    for p in process_list:
+        p.join()    
+    print("Done")
 
-process_images("./dataset/test")
+begin_threaded_execution()        
