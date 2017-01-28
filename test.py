@@ -44,6 +44,7 @@ def load_model(path):
 
     # Building convolutional network
     network = input_data(shape=[None, x[1], x[2], 1], name='input')
+    print(network)
 
     #1
     network = fully_connected(network, 128, activation='sigmoid')
@@ -78,7 +79,7 @@ def load_model(path):
 
     network = fully_connected(network, y[1], activation='sigmoid')
     network = regression(network, optimizer='adam', learning_rate=0.01,
-                         loss='categorical_crossentropy', name='target')
+                         loss='mean_square', name='target')
 
 
 

@@ -33,12 +33,15 @@ def make_model(x, y):
 	#1
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
+	print(network)
 	#2
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
+	print(network)
 	#3
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)
+	print(network)
 	#4
 	network = fully_connected(network, 128, activation='sigmoid')
 	network = dropout(network, 0.8)

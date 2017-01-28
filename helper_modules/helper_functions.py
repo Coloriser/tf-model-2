@@ -38,7 +38,9 @@ def load_b_channel_chroma_paths(mode):
 
 
 def load_luminance_paths(mode):
-    return load_from_pickle('paths_for_test/l_channel_luminance_paths')
+	if mode=='train':
+		return load_from_pickle('l_channel_luminance_paths')
+	return load_from_pickle('paths_for_test/l_channel_luminance_paths')
 
 def load_features(paths):
 	features = []
@@ -92,6 +94,9 @@ def pickle_shape( x, y):
 def import_shape_from_pickle():
     path = 'shape_of_in_and_out'
     value = load_from_pickle(path)
+    if not value:
+    	print("ERROR LOADING shape_of_in_and_out file")
+    	exit()
     print("x", value["input_shape"], "y", value["output_shape"])
     return value["input_shape"], value["output_shape"]
 
@@ -101,7 +106,7 @@ def normalize_array(feature_arr, mode="train"):		#to normalize the shape of each
 
 	if mode == 'test':
 		pickled_input_shape = import_shape_from_pickle()[0]
-    	maximum_shape = (pickled_input_shape[1],pickled_input_shape[2])
+		maximum_shape = (pickled_input_shape[1],pickled_input_shape[2])
 
 	# to find the maximum_shape
 	for each_feature in feature_arr:
